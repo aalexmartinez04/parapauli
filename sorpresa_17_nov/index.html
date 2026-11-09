@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Pauli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ESTILOS GLOBALES */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Cormorant Garamond', serif;
+            background-color: #050505;
+            overflow-x: hidden;
+            color: #dcd0ba;
+        }
+
+        /* PANTALLA DE ACCESO Y TEXTO INICIAL */
+        #login-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #050505;
+            z-index: 100;
+            transition: opacity 1.5s ease;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .intro-text {
+            max-width: 600px;
+            text-align: center;
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #dcd0ba;
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeIn 2s forwards 0.5s;
+        }
+
+        .login-box {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 250px;
+            opacity: 0;
+            animation: fadeIn 2s forwards 5s;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #444;
+            color: #dcd0ba;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            padding: 10px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-bottom: 1px solid #dcd0ba;
+        }
+        button {
+            background-color: transparent;
+            color: #dcd0ba;
+            border: 1px solid #444;
+            padding: 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            border-color: #dcd0ba;
+            background-color: rgba(220, 208, 186, 0.05);
+        }
+        .error-msg {
+            color: #8a3a3a;
+            font-size: 0.9rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* MESA DE MADERA */
+        #main-content {
+            display: none;
+            opacity: 0;
+            min-height: 100vh;
+            background: 
+                radial-gradient(circle at 50% 30%, rgba(200, 120, 50, 0.15) 0%, rgba(10, 8, 5, 0.9) 70%),
+                url('https://www.transparenttextures.com/patterns/wood-pattern.png'),
+                #1a110a;
+            padding: 60px 20px;
+            box-sizing: border-box;
+            transition: opacity 2s ease;
+        }
+
+        /* PAPIROS / CARTAS */
+        .papiro {
+            background-color: #e3d5b8;
+            background-image: url('https://www.transparenttextures.com/patterns/old-wall.png');
+            color: #2b2319;
+            max-width: 600px;
+            margin: 0 auto 60px auto;
+            padding: 40px 30px;
+            box-shadow: 
+                inset 0 0 40px rgba(139, 90, 43, 0.4), 
+                10px 15px 25px rgba(0,0,0,0.7);
+            border-radius: 2px 5px 3px 4px;
+            position: relative;
+        }
+        .papiro h2 {
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            font-size: 1.4rem;
+            border-bottom: 1px solid #a68f6d;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            color: #1c150e;
+        }
+        .papiro p {
+            line-height: 1.8;
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* EFECTO DOBLADO */
+        .carta-plegada {
+            max-height: 250px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: max-height 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .carta-plegada::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 120px;
+            background: linear-gradient(transparent, #e3d5b8);
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+        .carta-abierta {
+            max-height: 2000px;
+            cursor: default;
+        }
+        .carta-abierta::after {
+            opacity: 0;
+        }
+        .instruccion {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #8b5a2b;
+            font-style: italic;
+            margin-top: 10px;
+            animation: latido 2s infinite;
+        }
+        @keyframes latido {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* FOTOS VINTAGE */
+        .mesa-fotos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 20px;
+        }
+        .foto-vintage {
+            width: 220px;
+            height: 280px;
+            object-fit: cover;
+            filter: sepia(0.7) contrast(1.2) brightness(0.85) grayscale(0.2);
+            border: 8px solid #d4c4a8;
+            border-bottom-width: 25px;
+            box-shadow: 8px 12px 20px rgba(0,0,0,0.8);
+            cursor: pointer;
+            transition: transform 0.4s ease, filter 0.4s ease;
+        }
+        .foto-vintage:hover {
+            filter: sepia(0.5) contrast(1.1) brightness(1);
+            transform: scale(1.05) translateY(-10px) !important;
+            z-index: 10;
+        }
+        .foto1 { transform: rotate(-8deg); }
+        .foto2 { transform: rotate(5deg); margin-top: 40px; }
+        .foto3 { transform: rotate(-3deg); }
+        .foto4 { transform: rotate(7deg); margin-top: 20px; }
+        .foto5 { transform: rotate(-5deg); margin-top: 10px; }
+
+        /* LIGHTBOX PARA VER FOTOS */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(5, 5, 5, 0.95);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            border: 15px solid #d4c4a8;
+            border-bottom-width: 40px;
+            filter: sepia(0.4) contrast(1.1);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+
+        /* TEXTOS FINALES */
+        .poema {
+            text-align: center !important;
+            font-style: italic;
+        }
+        .firma {
+            text-align: right !important;
+            margin-top: 30px;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        /* OCULTAR BANNER DE NETLIFY */
+        iframe[src*="netlify"], div[id^="netlify"], a[href*="netlify.com"] {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÚSICA -->
+    <audio id="musica-fondo" loop>
+        <source src="yoko.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- PANTALLA DE ACCESO CON TEXTO INICIAL -->
+    <div id="login-screen">
+        <div class="intro-text">
+            He decidido transformar cada segundo que te tengo en mi mente en algo para poder darte, he decidido que cada vez que piense en ti hacer un poco de algo más grande, y poco a poco conseguir algo que te sacase una sonrisa. Si lo he conseguido, si esto te produce aunque sea una sonrisa, todo el trabajo habrá merecido la pena. Espero que te guste tanto como a mí hacerlo, con mucho cariño, Alex.
+        </div>
+
+        <div class="login-box">
+            <input type="text" id="password" placeholder="DD-MM-AAAA" autocomplete="off">
+            <button onclick="verificarAcceso()">Desvelar</button>
+            <div id="error-msg" class="error-msg">Fecha incorrecta. Aún no es el momento.</div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="main-content">
+        
+        <!-- CARTA DE VICTOR HUGO -->
+        <div class="papiro carta-plegada" id="carta-historica" onclick="abrirCarta()">
+            <h2>A mi Adèle,</h2>
+            <p>Solo unas palabras para decirte que pensar en ti es mi mayor alegría. Antes de conocerte, la vida me parecía un lugar más gris y solitario. Ahora, todo mi porvenir está lleno de tu luz.</p>
+            <p>Eres mi pensamiento constante, mi ilusión más querida. Siento que cada día que pasa es un regalo, y me pregunto a menudo qué hice yo para tener la inmensa suerte de que nuestros caminos se cruzaran.</p>
+            <p>Todo en mí se dirige hacia ti.</p>
+            <p style="text-align: right; font-weight: bold; font-family: 'Cinzel', serif;">Victor Hugo, 1821</p>
+            
+            <div class="instruccion" id="instruccion-carta">Toca el pergamino para desdoblar la carta</div>
+        </div>
+
+        <!-- 5 FOTOS -->
+        <div class="mesa-fotos">
+            <img src="foto1.jpg" alt="Recuerdo 1" class="foto-vintage foto1" onclick="abrirFoto(this.src)">
+            <img src="foto2.jpg" alt="Recuerdo 2" class="foto-vintage foto2" onclick="abrirFoto(this.src)">
+            <img src="foto3.jpg" alt="Recuerdo 3" class="foto-vintage foto3" onclick="abrirFoto(this.src)">
+            <img src="foto4.jpg" alt="Recuerdo 4" class="foto-vintage foto4" onclick="abrirFoto(this.src)">
+            <img src="foto5.jpg" alt="Recuerdo 5" class="foto-vintage foto5" onclick="abrirFoto(this.src)">
+        </div>
+
+        <!-- PRIMER PAPIRO (REFLEXIÓN Y POEMA) -->
+        <div class="papiro">
+            <h2>Para Pauli</h2>
+            <p>Pensando en que el miedo y los "y si..." me quitan la vida, que me arrepiento de lo que no hago, que el que vive con miedo muere cada día, me lanzo. Me tiro al agua, a tus brazos, sin miedo a la duda de si ellos frenarán la caída. El intento merece la pena, sin dramatismos me lanzo; la incertidumbre del qué habría sido me mataría antes allí arriba. Me lanzo, me lanzo y me lanzo. Escribiré poesía y con eso quizá me gane su amor, solo quizá, pero por ella me lanzo.</p>
+            
+            <p>Quizá podría aprender a escribir, o a quitarle la prosa a lo que escribo. Quizá con ello ella aprendería a quererme. Quizá me quisiera como yo la quiero... me preocupa que no sea así.</p>
+
+            <p style="text-align: center; font-style: italic; margin-top: 40px; margin-bottom: 5px;">3 de noviembre</p>
+            <p style="text-align: center; font-style: italic; margin-bottom: 30px;">Quizá...</p>
+            
+            <p class="poema">
+                Quizá podría aprender a quererla,<br>
+                quizá podría lanzarme, ¿saldría bien?<br>
+                Me pregunto, ya no dudo,<br>
+                quizá saldría mal, no me preocupo.<br><br>
+
+                Quizá saldría bien, ¿se me aceleraría el pulso?,<br>
+                la besaría, sentiría cómo se acelera el pulso,<br>
+                ya no dudo, le doy la mano, la suelta,<br>
+                quedo mudo, dudo.<br><br>
+
+                Pasan los meses, no dudo,<br>
+                sigo mudo, convencido del futuro,<br>
+                duerme a mi lado, la miro, sonrío,<br>
+                convencido del futuro a su lado,<br>
+                no dudo.
+            </p>
+            <p class="firma">Alex.</p>
+        </div>
+
+        <!-- SEGUNDO PAPIRO (LA CARTA DE REVOLUCIÓN) -->
+        <div class="papiro">
+            <p><i>Esta carta fue escrita en la madrugada del 3 de noviembre, después de aprender de ti a escribir. También, como tú me enseñaste, añadí la fecha y le puse un título, porque me dijiste que siempre tienen que tener una fecha y un título.</i></p>
+            
+            <h2 style="margin-top: 40px;">Revolución</h2>
+            <p style="text-align: center; font-style: italic; margin-bottom: 30px;">Miércoles, 4 de noviembre de 2026</p>
+            
+            <p>Llegó la revolución, la conocí el martes 8 de septiembre de 2026, en la zona vieja de Santiago. Ella estaba por marchar, capricho del destino, no lo hizo, entró una última vez. Recuerdo verla, únicamente pude pensar en ella desde entonces, se me aceleró el pulso cuando me habló. "Sois iguales" dijo señalando a mi hermano. Me llené de valor. Aquella noche fue la más bonita de mi vida, escribo para hacerla eterna aunque allí me pareciera efímera como un suspiro. Escribo para no olvidarla aunque no creo que eso fuese posible. Cuando marchó pareciera que hubiera pasado una revolución por aquella habitación.</p>
+            
+            <p>Ahora la conozco algo más, reafirmo el pensamiento de hace dos meses. Ella es inteligente, divertida, guapa... Tiene ganas de hacer cosas grandes en la vida y... yo tengo ganas de verla hacer cosas grandes en la vida. Tengo la seguridad de que son las personas como ella las que logran cosas que los demás ni imaginamos. Quería escribir sobre aquella noche, no querría olvidarla. Aunque eso no creo que fuese posible porque esa fue la noche en la que ella llegó a mi vida.</p>
+            
+            <div style="text-align: right; margin-top: 40px;">
+                <p style="margin-bottom: 5px;">Con mucho amor y con la seguridad de que estaré a tu lado,</p>
+                <span style="font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.3rem;">Alex.</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" onclick="cerrarFoto()">
+        <img id="lightbox-img" src="" alt="Foto ampliada">
+    </div>
+
+    <script>
+        function verificarAcceso() {
+            const pass = document.getElementById("password").value.trim();
+            const errorMsg = document.getElementById("error-msg");
+            const loginScreen = document.getElementById("login-screen");
+            const mainContent = document.getElementById("main-content");
+            const musica = document.getElementById("musica-fondo");
+
+            if (pass === "17-11-2026") {
+                
+                // INICIAMOS LA MÚSICA EN SILENCIO (Solución para móviles)
+                musica.volume = 0; 
+                musica.play().catch(e => console.log("El móvil bloqueó el audio: ", e));
+
+                loginScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loginScreen.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    setTimeout(() => { mainContent.style.opacity = '1'; }, 50);
+                }, 1500);
+                
+                setTimeout(() => {
+                    let fadeAudio = setInterval(() => {
+                        if (musica.volume < 0.95) {
+                            musica.volume += 0.05;
+                        } else {
+                            musica.volume = 1;
+                            clearInterval(fadeAudio);
+                        }
+                    }, 200);
+                }, 2500); 
+
+            } else {
+                errorMsg.style.opacity = '1';
+                setTimeout(() => { errorMsg.style.opacity = '0'; }, 3000);
+            }
+        }
+
+        document.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") { verificarAcceso(); }
+        });
+
+        function abrirCarta() {
+            const carta = document.getElementById("carta-historica");
+            const instruccion = document.getElementById("instruccion-carta");
+            carta.classList.remove("carta-plegada");
+            carta.classList.add("carta-abierta");
+            instruccion.style.display = "none";
+        }
+
+        function abrirFoto(src) {
+            const lightbox = document.getElementById("lightbox");
+            const lightboxImg = document.getElementById("lightbox-img");
+            lightboxImg.src = src;
+            lightbox.style.display = "flex";
+            setTimeout(() => { lightbox.style.opacity = "1"; }, 10);
+        }
+
+        function cerrarFoto() {
+            const lightbox = document.getElementById("lightbox");
+            lightbox.style.opacity = "0";
+            setTimeout(() => { lightbox.style.display = "none"; }, 300);
+        }
+    </script>
+</body>
+</html>
